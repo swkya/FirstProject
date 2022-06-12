@@ -12,6 +12,7 @@ import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.service.DishFlavorService;
 import com.itheima.reggie.service.DishService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,9 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
     DishFlavorService dishFlavorService;
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    DishMapper dishMapper;
     /*保存包含口味的菜品*/
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -152,10 +156,21 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
             flavor.setDishId(dishDto.getId());
         }
         //添加对应菜品的口味信息
-        boolean saveBatch = dishFlavorService.saveBatch(dishDto.getFlavors());
-        if (!saveBatch) {
+        boolean saveBatchResult = dishFlavorService.saveBatch(flavors);
+        if (!saveBatchResult) {
             return false;
         }
         return true;
+    }
+
+
+    /*起售/禁售
+    * 目标状态，值为0或1
+    * ids：要修改的菜品id们*/
+    @Override
+    public boolean switchStatus(Integer status, Long[] ids) {
+        //禁用
+     boolean result = dishMapper.updateStatusByIds(status,ids);
+        return result;
     }
 }

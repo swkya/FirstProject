@@ -28,4 +28,6 @@ public interface DishService extends IService<Dish> {
 
     /*修改菜品及菜品口味信息*/
     boolean updateByIdWithFlavors(DishDto dishDto);
+    /*起售/禁售*/
+    boolean switchStatus(Integer status, Long[] ids);
 }

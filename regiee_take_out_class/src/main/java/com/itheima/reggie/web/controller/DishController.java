@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Arrays;
 
 /**
  * @Author swk
@@ -98,5 +99,20 @@ public class DishController {
         }
         return R.fail("参数有误");
 
+    }
+
+
+    /*起售/禁售*/
+    @PostMapping("/status/{status}")
+    public R switchStatus(@PathVariable Integer status ,Long[] ids){
+        log.info("批量修改菜品状态，目标状态{}，菜品id们{}",status==0?"禁售":"起售", Arrays.toString(ids));
+        if (status!=null&&(status==0||status==1)) {
+           boolean ssResult = dishService.switchStatus(status,ids);
+           if (ssResult){
+               return R.success("修改状态成功");
+           }
+            return R.fail("修改状态失败");
+     }
+        return R.fail("参数有误");
     }
 }
