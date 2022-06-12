@@ -34,13 +34,14 @@ public class DishController {
     @PostMapping
     public R saveWithFlavors(@RequestBody DishDto dishDto) throws SQLIntegrityConstraintViolationException {
 
-        log.info("保存菜品内容{}", dishDto);
-        boolean saveResult = dishService.saveWithFlavors(dishDto);
-        if (saveResult) {
-            return R.success("保存成功");
-        }
+        log.info("保存菜品，信息如下：{}", dishDto.toString());
 
-        return R.fail("保存失败");
+        boolean saveResult = dishService.saveWithFlavor(dishDto);
+
+        if (saveResult) {
+            return R.success("新增菜品成功");
+        }
+        return R.fail("新增菜品失败");
 
     }
 

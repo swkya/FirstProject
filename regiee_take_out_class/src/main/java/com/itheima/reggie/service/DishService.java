@@ -18,7 +18,7 @@ import java.util.List;
 
 public interface DishService extends IService<Dish> {
     /*保存包含口味的菜品*/
-    boolean saveWithFlavors(DishDto dishDto) throws SQLIntegrityConstraintViolationException;
+    boolean saveWithFlavor(DishDto dishDto);
 
 
     Page<DishDto> pageWithPageName(Integer currentPage,Integer pageSize,String name);
@@ -36,5 +36,6 @@ public interface DishService extends IService<Dish> {
     boolean updateByIds(Long[] ids);
 
     List<Dish> findByCategoryId(Long categoryId);
+
 
 }
