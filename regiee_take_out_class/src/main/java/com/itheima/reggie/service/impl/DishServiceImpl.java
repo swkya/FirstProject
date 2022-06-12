@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 /**
@@ -172,5 +173,19 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         //禁用
      boolean result = dishMapper.updateStatusByIds(status,ids);
         return result;
+    }
+
+    /*逻辑删除，修改删除字段参数*/
+    @Override
+    public boolean updateByIds(Long[] ids) {
+        /*修改删除字段*/
+        boolean result = dishMapper.updateByIds(ids);
+        return result;
+    }
+
+    @Override
+    public List<Dish> findByCategoryId(Long categoryId) {
+        List<Dish> dish = dishMapper.getDishWithCategoryId(categoryId);
+        return dish;
     }
 }

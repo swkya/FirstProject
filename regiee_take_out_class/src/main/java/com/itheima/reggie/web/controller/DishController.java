@@ -9,11 +9,13 @@ import com.itheima.reggie.service.DishService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author swk
@@ -115,4 +117,34 @@ public class DishController {
      }
         return R.fail("参数有误");
     }
+
+    /*菜品批量删除 逻辑删除*/
+@DeleteMapping
+    public R deleteByIds( Long[] ids){
+    log.info("本次删除的id为{}",ids);
+    if (ids!=null){
+        boolean updateResult =  dishService.updateByIds(ids);
+        if (updateResult){
+           return R.success("删除成功！");
+        }
+      return R.fail("删除失败！");
+
+    }
+   return R.fail("参数有误！");
+
+}
+
+/*套餐添加，菜品的添加*/
+    @GetMapping("/list")
+    public R<List<Dish>> findDishWithCategoryId(Long categoryId){
+        if (categoryId==null){
+            return R.fail("查询失败!");
+        }
+
+
+        List<Dish> dish = dishService.findByCategoryId(categoryId);
+        return R.success("菜品查询成功",dish);
+    }
+
+
 }

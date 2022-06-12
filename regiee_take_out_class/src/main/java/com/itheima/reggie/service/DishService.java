@@ -8,6 +8,7 @@ import com.itheima.reggie.entity.dto.DishDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
 
 /**
  * @Author swk
@@ -30,4 +31,10 @@ public interface DishService extends IService<Dish> {
     boolean updateByIdWithFlavors(DishDto dishDto);
     /*起售/禁售*/
     boolean switchStatus(Integer status, Long[] ids);
+
+    /*删除菜品逻辑删除，更改删除字段*/
+    boolean updateByIds(Long[] ids);
+
+    List<Dish> findByCategoryId(Long categoryId);
+
 }
