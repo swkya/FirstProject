@@ -31,8 +31,8 @@ public class DishController {
     @PostMapping
     public R saveWithFlavors(@RequestBody DishDto dishDto) throws SQLIntegrityConstraintViolationException {
 
-        log.info("保存菜品内容{}",dishDto);
-      boolean saveResult= dishService.saveWithFlavors(dishDto);
+        log.info("保存菜品内容{}", dishDto);
+        boolean saveResult = dishService.saveWithFlavors(dishDto);
         if (saveResult) {
             return R.success("保存成功");
         }
@@ -45,13 +45,43 @@ public class DishController {
     /*菜品分页查询*/
 
     @GetMapping("/page")
-    public R<Page<DishDto>> page(@RequestParam("page") Integer currentPage , Integer pageSize,String name){
+    public R<Page<DishDto>> page(@RequestParam("page") Integer currentPage, Integer pageSize, String name) {
 
         Page<DishDto> dishDtoPage = dishService.pageWithPageName(currentPage, pageSize, name);
         //组织数据并相应
-        return R.success("查询成功",dishDtoPage);
+        return R.success("查询成功", dishDtoPage);
     }
 
+   /* @GetMapping("/{id}")
+    public R<Dish> getById(@PathVariable Long id) {
+        log.info("根据菜品id查询菜品信息，id为{}", id);
+        //id非空判断
+        if (id != null) {
+            Dish dish = dishService.getById(id);
+            if (dish != null) {
+                return R.success("查询成功", dish);
+            }
+            return R.fail("查询失败");
+        }
+        return R.fail("参数有误");
+    }*/
+
+
+    /*根据id查询菜品包含口味信息
+    * id查询条件*/
+    @GetMapping("/{id}")
+    public R<DishDto> getByWithFlavors(@PathVariable Long id) {
+        log.info("根据菜品id查询菜品信息，id为{}", id);
+        //id非空判断
+        if (id != null) {
+            DishDto dishDto = dishService.getByWithFlavors(id);
+            if (dishDto != null) {
+                return R.success("查询成功", dishDto);
+            }
+            return R.fail("查询失败");
+        }
+        return R.fail("参数有误");
+    }
 
 
 }

@@ -22,4 +22,7 @@ public interface DishService extends IService<Dish> {
 
     Page<DishDto> pageWithPageName(Integer currentPage,Integer pageSize,String name);
 
+    /*根据id查询菜品包含口味信息
+     * id查询条件*/
+    DishDto getByWithFlavors(Long id);
 }
