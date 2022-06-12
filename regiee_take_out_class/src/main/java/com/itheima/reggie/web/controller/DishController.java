@@ -83,5 +83,20 @@ public class DishController {
         return R.fail("参数有误");
     }
 
+/*修改菜品及菜品口味信息*/
+    @PutMapping
+    public R update(@RequestBody DishDto dishDto){
+        log.info("修改菜品，数据:{}",dishDto);
+        //Id非空校验
+        Long dishId = dishDto.getId();
+        if (dishId!=null) {
+          boolean updateResult = dishService.updateByIdWithFlavors(dishDto);
+            if (updateResult) {
+                return R.success("更新成功");
+            }
+            return R.fail("修改失败");
+        }
+        return R.fail("参数有误");
 
+    }
 }
