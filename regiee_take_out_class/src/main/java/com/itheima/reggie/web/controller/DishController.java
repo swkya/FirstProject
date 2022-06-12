@@ -41,6 +41,9 @@ public class DishController {
 
     }
 
+
+    /*菜品分页查询*/
+
     @GetMapping("/page")
     public R<Page<DishDto>> page(@RequestParam("page") Integer currentPage , Integer pageSize,String name){
 
@@ -48,4 +51,7 @@ public class DishController {
         //组织数据并相应
         return R.success("查询成功",dishDtoPage);
     }
+
+
+
 }

@@ -72,6 +72,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         //条件查询
         Page<Dish> page = new Page<>(currentPage,pageSize);
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
         queryWrapper.like(StringUtils.isNotBlank(name),Dish::getName,name);
        //查询出来的page的records里面的每个dish只包含分类id，无分类名称
         this.page(page,queryWrapper);
