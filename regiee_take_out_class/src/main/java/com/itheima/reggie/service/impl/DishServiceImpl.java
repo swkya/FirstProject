@@ -145,6 +145,12 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         queryWrapper.eq(DishFlavor::getDishId,dishDto.getId());
         boolean deleteResult = dishFlavorService.remove(queryWrapper);
         //删除失败也没事，不用额外处理！接下来直接添加即可
+
+        //把dishid设置进dishFlavor对象
+        List<DishFlavor> flavors = dishDto.getFlavors();
+        for (DishFlavor flavor : flavors) {
+            flavor.setDishId(dishDto.getId());
+        }
         //添加对应菜品的口味信息
         boolean saveBatch = dishFlavorService.saveBatch(dishDto.getFlavors());
         if (!saveBatch) {
