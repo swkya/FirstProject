@@ -4,18 +4,25 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.reggie.entity.Category;
+import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.Setmeal;
+import com.itheima.reggie.entity.SetmealDish;
+import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.entity.dto.SetmealDto;
 import com.itheima.reggie.mapper.SetmealMapper;
 import com.itheima.reggie.service.CategoryService;
+import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
+import com.itheima.reggie.web.exception.BusinessException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author swk
@@ -27,6 +34,8 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
     @Autowired
     CategoryService categoryService;
+    @Autowired
+    SetmealDishService setmealDishService;
     /*套餐管理分类查询,携带套餐分类名称*/
     @Override
     public Page<SetmealDto> pageWithCategoryName(Integer currentPage, Integer pageSize, String name) {
@@ -73,4 +82,50 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         //遍历原来分页对象中的records；
         return dtoPage;
     }
+
+    /*新增套餐*/
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveWithDish(SetmealDto setmealDto) {
+//        1. 如果套餐名称已存在，提示用户重名
+        String setmealName = setmealDto.getName();
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Setmeal::getName,setmealName);
+        Setmeal setmeal = this.getOne(queryWrapper);
+        if (setmeal!=null){
+            throw new BusinessException(setmeal+"套餐已存在");
+        }
+//        2. 新增套餐基本信息，返回的套餐id会自动设置进entity
+        this.save(setmealDto);
+//        3. 保存套餐菜品明细
+//        3.1 获取新增套餐菜品明细
+        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
+//        3.2 遍历获取每个套餐菜品明细，添加套餐id
+        setmealDishes.stream().map((setmealDish)->{
+            //3.3 添加套餐id
+            setmealDish.setSetmealId(setmealDto.getId());
+            return setmealDish;
+        }).collect(Collectors.toList());
+
+
+//        3.4 保存套餐菜品明细
+        setmealDishService.saveBatch(setmealDishes);
+    }
+
+    @Override
+    public SetmealDto getByWithDish(Long id) {
+        Setmeal setmeal = this.getById(id);
+        SetmealDto setmealDto = new SetmealDto();
+        BeanUtils.copyProperties(setmeal,setmealDto);
+
+//查询当前套餐对应的菜品信息，从setmeal_dish表查询
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,id);
+        List<SetmealDish> setmealDishes = setmealDishService.list(queryWrapper);
+        setmealDto.setSetmealDishes(setmealDishes);
+        return setmealDto;
+
+    }
+
+
 }

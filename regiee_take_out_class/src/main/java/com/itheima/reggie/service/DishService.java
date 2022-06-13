@@ -35,7 +35,6 @@ public interface DishService extends IService<Dish> {
     /*删除菜品逻辑删除，更改删除字段*/
     boolean updateByIds(Long[] ids);
 
+
     List<Dish> findByCategoryId(Long categoryId);
-
-
 }

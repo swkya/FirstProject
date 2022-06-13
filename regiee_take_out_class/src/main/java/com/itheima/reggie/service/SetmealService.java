@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.Setmeal;
+import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.entity.dto.SetmealDto;
 
 /**
@@ -16,4 +17,9 @@ public interface SetmealService extends IService<Setmeal> {
 
     /*套餐管理分类查询,携带套餐分类名称*/
     Page<SetmealDto> pageWithCategoryName(Integer currentPage, Integer pageSize, String name);
+
+    /*新增套餐*/
+    void saveWithDish(SetmealDto setmealDto);
+
+    SetmealDto getByWithDish(Long id);
 }

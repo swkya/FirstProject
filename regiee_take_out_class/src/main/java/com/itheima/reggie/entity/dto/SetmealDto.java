@@ -1,9 +1,13 @@
 package com.itheima.reggie.entity.dto;
 
+import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.Setmeal;
+import com.itheima.reggie.entity.SetmealDish;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @Author swk
@@ -14,5 +18,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SetmealDto extends Setmeal {
+    //分类名称
     private String categoryName;
+
+    //套餐关联菜品集合
+    private List<SetmealDish> setmealDishes;
 }

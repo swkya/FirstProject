@@ -2,26 +2,30 @@ package com.itheima.reggie.web.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
+import com.itheima.reggie.entity.Dish;
+import com.itheima.reggie.entity.SetmealDish;
+import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.entity.dto.SetmealDto;
+import com.itheima.reggie.service.DishService;
+import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
- * @Author swk
- * @Date 2022/6/12 17:16
- * @Version 1.0
+ * 套餐管理
  */
 @RestController
 @RequestMapping("/setmeal")
 @Slf4j
 public class SetmealController {
     @Autowired
-    SetmealService setmealService;
+    private SetmealService setmealService;
+    @Autowired
+    private SetmealDishService setmealDishService;
 
 
     /*套餐管理分类查询，携带套餐分类名称*/
@@ -35,7 +39,45 @@ public class SetmealController {
         if (pageSize==null) {
             pageSize=10;
         }
-     Page<SetmealDto> page = setmealService.pageWithCategoryName(currentPage,pageSize,name);
+        Page<SetmealDto> page = setmealService.pageWithCategoryName(currentPage,pageSize,name);
         return R.success("查询成功",page);
     }
-}
+
+
+    @PostMapping
+    public R save(@RequestBody SetmealDto setmealDto){
+        log.info("新增套餐，套餐信息：{}", setmealDto.toString());
+
+        setmealService.saveWithDish(setmealDto);
+
+        return R.success("新增套餐成功");
+    }
+
+    /*套餐修改 数据回显*/
+    @GetMapping("/{id}")
+    public R<SetmealDto> findWithId(@PathVariable Long id){
+        log.info("根据套餐id查询套餐信息，id为{}", id);
+        //id非空判断
+        if (id != null) {
+            SetmealDto setmealDto = setmealService.getByWithDish(id);
+            if (setmealDto != null) {
+                return R.success("查询成功", setmealDto);
+            }
+            return R.fail("查询失败");
+        }
+        return R.fail("参数有误");
+
+    }
+
+    /*修改套餐*/
+    @PutMapping
+    public R update(SetmealDto setmealDto){
+        log.info("修改的套餐信息为{}",setmealDto);
+          boolean Result = setmealService.updateWithDishs(setmealDto);
+          if (Result){
+            return R.success("菜品修改成功");
+    }
+          return R.fail("修改套餐失败");
+    }
+
+} 
