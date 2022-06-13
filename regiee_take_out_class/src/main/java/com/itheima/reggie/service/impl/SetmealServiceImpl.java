@@ -36,6 +36,8 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
     CategoryService categoryService;
     @Autowired
     SetmealDishService setmealDishService;
+    @Autowired
+    SetmealMapper setmealMapper;
     /*套餐管理分类查询,携带套餐分类名称*/
     @Override
     public Page<SetmealDto> pageWithCategoryName(Integer currentPage, Integer pageSize, String name) {
@@ -112,6 +114,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         setmealDishService.saveBatch(setmealDishes);
     }
 
+    /*套餐修改回显*/
     @Override
     public SetmealDto getByWithDish(Long id) {
         Setmeal setmeal = this.getById(id);
@@ -125,6 +128,47 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         setmealDto.setSetmealDishes(setmealDishes);
         return setmealDto;
 
+    }
+
+    /*套餐更新*/
+    @Override
+    public void updateWithDishs(SetmealDto setmealDto) {
+        //更新setmeal表基本信息
+        this.updateById(setmealDto);
+
+        //清理当前套餐对应菜品数据---setmeal_dish表的delete操作
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,setmealDto.getId());
+        setmealDishService.remove(queryWrapper);
+
+        //添加当前提交过来的菜品数据---setmeal_dish表的insert操作
+        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
+
+        setmealDishes = setmealDishes.stream().map((dish) -> {
+            dish.setSetmealId(setmealDto.getId());
+            return dish;
+        }).collect(Collectors.toList());
+
+        setmealDishService.saveBatch(setmealDishes);
+
+
+
+    }
+
+
+    /*菜品停售起售*/
+    @Override
+    public boolean switchStatus(Integer status, Long[] ids) {
+     boolean result = setmealMapper.updateStatus(status,ids);
+     return result;
+
+    }
+
+    /*逻辑删除套餐*/
+    @Override
+    public boolean updateByIds(Long[] ids) {
+       boolean result =  setmealMapper.updateWithDeletedId(ids);
+       return result;
     }
 
 

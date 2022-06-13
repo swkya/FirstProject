@@ -3,6 +3,7 @@ package com.itheima.reggie.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.itheima.reggie.entity.Setmeal;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @Author swk
@@ -11,4 +12,10 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface SetmealMapper extends BaseMapper<Setmeal> {
+    /*起售停售*/
+    boolean updateStatus(@Param("status") Integer status,@Param("ids") Long[] ids);
+
+    /*逻辑删除字段*/
+    boolean updateWithDeletedId(Long[] ids);
+
 }

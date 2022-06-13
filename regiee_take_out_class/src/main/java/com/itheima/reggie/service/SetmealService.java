@@ -21,5 +21,15 @@ public interface SetmealService extends IService<Setmeal> {
     /*新增套餐*/
     void saveWithDish(SetmealDto setmealDto);
 
+    /*套餐修改回显*/
     SetmealDto getByWithDish(Long id);
+
+    /*套餐更新*/
+   public void updateWithDishs(SetmealDto setmealDto);
+
+   /*停售 起售*/
+    boolean switchStatus(Integer status, Long[] ids);
+
+    /*删除 逻辑删除 更改字段*/
+    boolean updateByIds(Long[] ids);
 }
