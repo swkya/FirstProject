@@ -70,6 +70,7 @@ public class LoginCheckFilter implements Filter {
 
         // 前台用户登录状态检查
         Long userId = (Long) req.getSession().getAttribute("user");
+        System.out.println("用户id是"+userId);
         if (userId != null) {
             //4. 判断登录状态，如果已登录，则直接放行
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace:名称空间,最后面改成接口名
+-->
+<mapper namespace="com.itheima.reggie.mapper.AddressBookMapper">
+
+    <!--逻辑删除地址-->
+    <update id="updateByIds">
+        update address_book set is_deleted=1 where id = #{ids}
+    </update>
+
+
+
+</mapper>

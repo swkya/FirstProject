@@ -48,7 +48,7 @@ public class UserController {
            // SMSUtils.sendMessage(user.getPhone(), code + "");
 
             // 保存验证码到session
-            session.setAttribute("code", code);
+            session.setAttribute(user.getPhone(), code);
             log.info("验证码发送请求：{}", code);
 
             return R.success("验证码发送成功", null);
@@ -72,7 +72,10 @@ public class UserController {
 
             // 判断验证码是否正确
             // 从session获取保存的验证码
-            Object codeInSession = session.getAttribute("code");
+            Object codeInSession = session.getAttribute(phone);
+            if (codeInSession==null){
+                return R.fail("请确认手机号是否正确/验证码已过期");
+            }
 
             // 判断验证码是否相同
             if (code.equals(codeInSession.toString())) {
@@ -91,6 +94,9 @@ public class UserController {
 
                 // 保存用户登录状态
                 session.setAttribute("user", user.getId());
+
+                // 删除本次登录的验证码
+                session.removeAttribute(phone);
 
                 // 组织数据并返回
                 return R.success("登录成功", user);
