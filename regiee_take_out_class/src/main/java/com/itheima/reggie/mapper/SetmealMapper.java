@@ -15,7 +15,6 @@ public interface SetmealMapper extends BaseMapper<Setmeal> {
     /*起售停售*/
     boolean updateStatus(@Param("status") Integer status,@Param("ids") Long[] ids);
 
-    /*逻辑删除字段*/
-    boolean updateWithDeletedId(Long[] ids);
+
 
 }

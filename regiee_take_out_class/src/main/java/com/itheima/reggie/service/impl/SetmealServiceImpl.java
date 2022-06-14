@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -165,10 +166,36 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
     }
 
     /*逻辑删除套餐*/
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateByIds(Long[] ids) {
-       boolean result =  setmealMapper.updateWithDeletedId(ids);
-       return result;
+        //如果套餐是起售状态，删除失败
+        //尽量使用少的查询次数，查询出更多内容，这样mysql服务器压力会小一些
+        //查询指定的套餐的启用的个数，如果个数大于0，就禁止删除
+        LambdaQueryWrapper<Setmeal> qw = new LambdaQueryWrapper<>();
+        //拼接 id in (xx,yy,zz)
+        qw.in(Setmeal::getId,ids)
+                //拼接 status=1
+                .eq(Setmeal::getStatus,1);
+        int onCount = this.count(qw);
+        //如果启用中的套餐个数大一0
+        if (onCount>0) {
+            throw new BusinessException("禁止删除启用中的套餐");
+        }
+        //禁售状态，删除（setmeal表）
+        boolean result = this.removeByIds(Arrays.asList(ids));
+        if (!result){
+            return false;
+        }
+        //3.删除套餐详情（setmeal_dish)表
+        //根据套餐id删除改套餐id下包含的多个套餐详情（套餐对应的菜品）
+        LambdaQueryWrapper<SetmealDish> rqw = new LambdaQueryWrapper<>();
+        rqw.in(SetmealDish::getSetmealId,ids);
+        //组织数据返回
+       return setmealDishService.remove(rqw);
+
+
+
     }
 
 

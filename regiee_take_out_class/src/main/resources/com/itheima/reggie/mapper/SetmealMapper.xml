@@ -17,14 +17,5 @@
 
     </update>
 
-    <!--逻辑删除字段-->
-    <update id="updateWithDeletedId">
-        update setmeal set is_deleted = 1
-        <where>
-            <foreach collection="ids" item="id" open="id in(" close=")" separator=",">
-                #{id}
-            </foreach>
-        </where>
 
-    </update>
 </mapper>

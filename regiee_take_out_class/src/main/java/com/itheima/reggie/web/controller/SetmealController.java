@@ -98,7 +98,7 @@ public class SetmealController {
     @DeleteMapping
     public R deleteByIds( Long[] ids){
         log.info("本次删除的套餐id为{}",ids);
-        if (ids!=null){
+        if (ids.length>0){
             boolean updateResult =  setmealService.updateByIds(ids);
             if (updateResult){
                 return R.success("删除成功！");
