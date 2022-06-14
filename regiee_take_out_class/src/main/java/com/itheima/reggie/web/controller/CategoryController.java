@@ -9,6 +9,7 @@ import com.itheima.reggie.service.CategoryService;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,8 +107,38 @@ public class CategoryController {
 
     }
 
-    /*查询分类*/
-    @GetMapping("/list")
+    /*前台查询分类*/
+    @GetMapping("list")
+    public R<List<Category>> listByCondition(Category category) {
+        log.info("查询分类，查询条件：{}", category);
+
+
+        // 1. 条件构造器，设置分类类型
+        LambdaQueryWrapper<Category> qw = new LambdaQueryWrapper<>();
+
+        // 2. 条件构造器，设置主次排序条件
+        Integer type = category.getType();
+        String name = category.getName();
+        // 如果存在类型，就按照类型查
+        qw.eq(type != null, Category::getType, type)
+                // 如果存在名称，就按照名称查
+                .like(StringUtils.isNotBlank(name), Category::getName, name)
+                // 隐含的排序条件
+                .orderByAsc(Category::getSort)
+                .orderByDesc(Category::getUpdateTime);
+
+        // 3. 调用`service`方法查询
+        List<Category> categories = categoryService.list(qw);
+
+        if (categories != null && categories.size() > 0) {
+            // 4. 组装结果数据，响应
+            return R.success("查询分类成功", categories);
+        }
+        return R.fail("没有这种分类");
+    }
+
+
+    //@GetMapping("/list")
     public R<List<Category>> listByType(Long type) {
         if (type != null) {
             LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<>();
