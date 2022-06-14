@@ -23,59 +23,80 @@ import java.io.IOException;
 @Slf4j
 @WebFilter("/*")//表示该类是一个filter拦截所有请求
 public class LoginCheckFilter implements Filter {
-    //创建路径匹配器对象
+    // 2.2 创建Spring提供的路径匹配器对象
     AntPathMatcher apm = new AntPathMatcher();
 
-   //判断是否登录，并决定是否放行
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        //1.获取本次请求URI
+    public void doFilter(ServletRequest request, ServletResponse response,
+                         FilterChain filterChain) throws IOException, ServletException {
+        //1. 获取本次请求的URI
         HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
         String requestURI = req.getRequestURI();
-        //判断本次请求是否需要登录，才可以访问
+        log.info("请求路径为：{}", requestURI);
 
-        //定义要放行的所有请求
+        //2. 判断本次请求, 是否需要登录, 才可以访问
+
+        // 2.1 定义无需要登录就要放行的资源
         String[] urls = {
-                "/employee/login",
-                "/employee/logout",
-                "/backend/**",
                 "/front/**",
-                "/favicon.ico"
+                "/backend/**",
+                "/favicon.ico",
+                "/employee/logout",
+                "/employee/login",
+                // 前台登录相关请求
+                "/user/sendMsg",
+                "/user/login"
         };
 
-        //检查是否在放行范围
-        if(checkUrl(urls,requestURI)){
-            //如果不需要则直接放行
+        if (chechkUrl(urls, requestURI)) {
 
-            filterChain.doFilter(request,response);
-            return; //后面代码不需要直接放行
+            //3. 如果不需要，则直接放行
+            filterChain.doFilter(request, response);
+            return;
         }
-
-        //判断登录状态，如果已经登陆,直接放行
+        // 后台员工登录状态检查
         Long employeeId = (Long) req.getSession().getAttribute("employee");
         if (employeeId != null) {
+            //4. 判断登录状态，如果已登录，则直接放行
+
+            // 4.1 存用户id到ThreadLocal
             BaseContext.setCurrentId(employeeId);
-          //放行
-            filterChain.doFilter(request,response);
-            return; //后面代码不需要直接放行
+
+            // 放行
+            filterChain.doFilter(request, response);
+
+            return;
         }
-            //未登录，返回未登录的结果，跳转到登录页面
-        resp.getWriter().write(JSON.toJSONString(R.fail("NOTLOGIN")));
+
+        // 前台用户登录状态检查
+        Long userId = (Long) req.getSession().getAttribute("user");
+        if (userId != null) {
+            //4. 判断登录状态，如果已登录，则直接放行
+
+            // 4.1 存用户id到ThreadLocal
+            BaseContext.setCurrentId(userId);
+
+            // 放行
+            filterChain.doFilter(request, response);
+
+            return;
+        }
+
+        //5. 如果未登录, 则返回未登录结果
+        response.getWriter().write(JSON.toJSONString(R.fail("NOTLOGIN")));
 
     }
 
-    //判断确认某个请求是否在不登录的时候就可以放行
-    private boolean checkUrl(String[] urls, String requestURI) {
-       boolean matchResult = false;
+    // 2.3 使用Spring提供的路径匹配器判断是否匹配
+    private boolean chechkUrl(String[] urls, String requestURI) {
         for (String url : urls) {
-             matchResult = apm.match(url, requestURI);
-            if (matchResult){
-               return true;
+            boolean match = apm.match(url, requestURI);
+            if (match) {
+                log.info("请求url是{}, 是否直接放行{}", requestURI, true);
+                return true;
             }
         }
-        log.info("本次请求url为：{}，是否需要放行{}", requestURI, matchResult);
-
+        log.info("请求url是{}, 是否直接放行{}", requestURI, false);
         return false;
     }
 }

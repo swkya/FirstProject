@@ -88,7 +88,10 @@
           <div class="divPrice"></div>
           <div :class="{btnSubmitActive: cartData && cartData.length > 0, btnSubmit:!cartData || cartData.length<1}" @click="toAddOrderPage">去结算</div>
         </div>
-        <van-dialog v-model="dialogFlavor.show" :show-confirm-button="false" class="dialogFlavor" ref="flavorDialog">
+
+
+      <!-- 选择口味加入购物车弹窗-->
+      <van-dialog v-model="dialogFlavor.show" :show-confirm-button="false" class="dialogFlavor" ref="flavorDialog">
           <div class="dialogTitle">{{dialogFlavor.name}}</div>
           <div class="divContent">
             <div v-for="flavor in dialogFlavor.flavors" :key="flavor.id">
@@ -108,6 +111,8 @@
             <img src="./images/close.png"/>
           </div>
         </van-dialog>
+
+        <!-- 购物车详情弹窗 -->
         <van-popup v-model="cartDialogShow" position="bottom" :style="{ height: '50%' }" class="dialogCart">
           <div class="divCartTitle">
             <div class="title">购物车</div>
@@ -125,7 +130,7 @@
               <div class="divDesc">
                 <div class="name">{{item.name}}</div>
                 <div class="price">
-                  <span class="spanMoney">￥</span>{{item.amount}}</div>
+                  <span class="spanMoney"></span>{{item.amount}}</div>
               </div>
               <div class="divNum">
                 <div class="divSubtract">
@@ -140,6 +145,8 @@
               </div>
           </div>
         </van-popup>
+
+
         <van-dialog v-model="detailsDialog.show" 
                     :show-confirm-button="false" 
                     class="detailsDialog" 
@@ -198,7 +205,7 @@
             </div>
           <div class="divNum">
               <div class="left">
-                <span>￥</span><span>{{setMealDialog.item.price/100}}</span>
+                <span>aaa</span><span>{{setMealDialog.item.price/100}}</span>
               </div>
               <div class="right">
                   <div class="divSubtract" v-if="setMealDialog.item.number > 0">
@@ -295,7 +302,8 @@
           methods:{
             //初始化数据
             initData(){
-              Promise.all([categoryListApi(),cartListApi({})]).then(res=>{
+              //Promise.all([categoryListApi(),cartListApi({})]).then(res=>{
+               Promise.all([categoryListApi()]).then(res=>{
                 //获取分类数据
                 if(res[0].code === 1){
                   this.categoryList = res[0].data

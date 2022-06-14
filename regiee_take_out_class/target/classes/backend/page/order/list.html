@@ -219,6 +219,7 @@
           async init () {
             getOrderDetailPage({ page: this.page, pageSize: this.pageSize, number: this.input || undefined, beginTime: this.beginTime || undefined, endTime: this.endTime || undefined }).then(res => {
               if (String(res.code) === '1') {
+                  console.log(res.data)
                 this.tableData = res.data.records || []
                 this.counts = res.data.total
               }

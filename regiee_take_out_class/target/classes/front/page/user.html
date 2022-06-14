@@ -39,7 +39,7 @@
                 <div class="divSplit"></div>
                 <div class="item" @click="toOrderPage">
                     <img src="./../images/orders.png"/>
-                    <span>历史订单</span>
+                    <span style="display: inline-block; width: 50%" >历史订单</span>
                     <i class="el-icon-arrow-right"></i>
                 </div>
             </div>
@@ -125,7 +125,7 @@
                     }) 
                 },
                 initData(){
-                    this.getLatestOrder()
+                    //this.getLatestOrder()
                 },
                 async getLatestOrder(){
                     const params = {
