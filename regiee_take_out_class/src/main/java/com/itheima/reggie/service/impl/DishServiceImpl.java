@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements DishService {
+public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
 
     @Autowired
     DishFlavorService dishFlavorService;
@@ -39,6 +39,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
 
     @Autowired
     DishMapper dishMapper;
+
     /*保存包含口味的菜品*/
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -83,52 +84,51 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
     }
 
 
-
     @Override
-    public Page<DishDto> pageWithPageName(Integer currentPage,Integer pageSize, String name) {
+    public Page<DishDto> pageWithPageName(Integer currentPage, Integer pageSize, String name) {
         //检查并设置分页参数的合理性
-        if (currentPage==null) {
-            currentPage=1;
+        if (currentPage == null) {
+            currentPage = 1;
         }
-        if (pageSize==null) {
-            pageSize=10;
+        if (pageSize == null) {
+            pageSize = 10;
         }
         //条件查询
-        Page<Dish> page = new Page<>(currentPage,pageSize);
+        Page<Dish> page = new Page<>(currentPage, pageSize);
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
-        queryWrapper.like(StringUtils.isNotBlank(name),Dish::getName,name);
-       //查询出来的page的records里面的每个dish只包含分类id，无分类名称
-        this.page(page,queryWrapper);
+        queryWrapper.like(StringUtils.isNotBlank(name), Dish::getName, name);
+        //查询出来的page的records里面的每个dish只包含分类id，无分类名称
+        this.page(page, queryWrapper);
 
         //创建新的page对象，内含dishDto
         Page<DishDto> dishDtoPage = new Page<>();
         //复制基本信息
-        BeanUtils.copyProperties(page,dishDtoPage,"records");
+        BeanUtils.copyProperties(page, dishDtoPage, "records");
         //查询所有(菜品)分类
         List<Category> categories = categoryService.list();
         //处理records中的dishDto对象分类名称
-    List<DishDto> dishDtos = page.getRecords().stream()
+        List<DishDto> dishDtos = page.getRecords().stream()
                 //获取每一个dish对象
-                .map((dish)->{
+                .map((dish) -> {
                     //准备一个可以保存分类名称的dish的子类的dishDto对象
-            DishDto dishDto = new DishDto();
+                    DishDto dishDto = new DishDto();
 
-            //复制dish的基本数据
-                    BeanUtils.copyProperties(dish,dishDto);
-            //根据dish中的分类id
-            Long categoryId = dish.getCategoryId();
-            //遍历所有分类集合，根据id查找名字
-            for (Category category : categories) {
-                if (categoryId.equals(category.getId()) ) {
-                    //找到对应的
-                    dishDto.setCategoryName(category.getName());
-                }
-            }
-            return dishDto;
-        }).collect(Collectors.toList());
+                    //复制dish的基本数据
+                    BeanUtils.copyProperties(dish, dishDto);
+                    //根据dish中的分类id
+                    Long categoryId = dish.getCategoryId();
+                    //遍历所有分类集合，根据id查找名字
+                    for (Category category : categories) {
+                        if (categoryId.equals(category.getId())) {
+                            //找到对应的
+                            dishDto.setCategoryName(category.getName());
+                        }
+                    }
+                    return dishDto;
+                }).collect(Collectors.toList());
 
-    dishDtoPage.setRecords(dishDtos);
+        dishDtoPage.setRecords(dishDtos);
 
         return dishDtoPage;
     }
@@ -141,13 +141,13 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         Dish dish = this.getById(id);
         //根据菜品id查询菜品口味
         LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(DishFlavor::getDishId,id);
+        queryWrapper.eq(DishFlavor::getDishId, id);
         List<DishFlavor> flavors = dishFlavorService.list(queryWrapper);
         //封装口味信息到菜品对象
-        DishDto dishDto =  new DishDto();
+        DishDto dishDto = new DishDto();
 
         //复制基本数据
-        BeanUtils.copyProperties(dish,dishDto);
+        BeanUtils.copyProperties(dish, dishDto);
 
         dishDto.setFlavors(flavors);
 
@@ -166,7 +166,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         }
         //删除对应菜品的口味信息
         LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(DishFlavor::getDishId,dishDto.getId());
+        queryWrapper.eq(DishFlavor::getDishId, dishDto.getId());
         boolean deleteResult = dishFlavorService.remove(queryWrapper);
         //删除失败也没事，不用额外处理！接下来直接添加即可
 
@@ -185,12 +185,12 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
 
 
     /*起售/禁售
-    * 目标状态，值为0或1
-    * ids：要修改的菜品id们*/
+     * 目标状态，值为0或1
+     * ids：要修改的菜品id们*/
     @Override
     public boolean switchStatus(Integer status, Long[] ids) {
         //禁用
-     boolean result = dishMapper.updateStatusByIds(status,ids);
+        boolean result = dishMapper.updateStatusByIds(status, ids);
         return result;
     }
 
@@ -202,9 +202,14 @@ public class DishServiceImpl extends ServiceImpl<DishMapper,Dish> implements Dis
         return result;
     }
 
+    /*新建套餐 菜品分类选择*/
+
     @Override
-    public List<Dish> findByCategoryId(Long categoryId) {
-        List<Dish> dish = dishMapper.getDishWithCategoryId(categoryId);
-        return dish;
+    public List<Dish> findByCondtion(Long categoryId, String name) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(categoryId != null, Dish::getCategoryId, categoryId)
+                .like(StringUtils.isNotBlank(name), Dish::getName, name);
+        queryWrapper.eq(Dish::getStatus, 1).orderByDesc(Dish::getSort);
+        return dishMapper.selectList(queryWrapper);
     }
 }

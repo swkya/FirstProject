@@ -21,5 +21,5 @@ public interface DishMapper extends BaseMapper<Dish> {
     /*逻辑删除，修改删除字段参数*/
     boolean updateByIds(@Param("ids") Long[] ids);
 
-    List<Dish> getDishWithCategoryId(Long categoryId);
+
 }

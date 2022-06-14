@@ -137,13 +137,8 @@ public class DishController {
 
     /*套餐添加，菜品的添加*/
     @GetMapping("/list")
-    public R<List<Dish>> findDishWithCategoryId(Long categoryId){
-        if (categoryId==null){
-            return R.fail("查询失败!");
-        }
-
-
-        List<Dish> dish = dishService.findByCategoryId(categoryId);
+    public R<List<Dish>> findDishWithCategoryId(Long categoryId,String name){
+        List<Dish> dish = dishService.findByCondtion(categoryId,name);
         return R.success("菜品查询成功",dish);
     }
 

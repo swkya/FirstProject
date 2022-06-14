@@ -36,5 +36,7 @@ public interface DishService extends IService<Dish> {
     boolean updateByIds(Long[] ids);
 
 
-    List<Dish> findByCategoryId(Long categoryId);
+
+
+    List<Dish> findByCondtion(Long categoryId, String name);
 }
