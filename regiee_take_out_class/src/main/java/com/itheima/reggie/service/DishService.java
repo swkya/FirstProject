@@ -38,5 +38,5 @@ public interface DishService extends IService<Dish> {
 
 
 
-    List<Dish> findByCondtion(Long categoryId, String name);
+    List<DishDto> findByCondtion(Long categoryId, String name);
 }

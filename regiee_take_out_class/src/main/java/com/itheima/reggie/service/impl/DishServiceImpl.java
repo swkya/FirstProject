@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -205,11 +206,82 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     /*新建套餐 菜品分类选择*/
 
     @Override
-    public List<Dish> findByCondtion(Long categoryId, String name) {
+    public List<DishDto> findByCondtion(Long categoryId, String name) {
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        // TODO 菜品条件查询2：获取更多查询条件，非空判断后添加到qw中
         queryWrapper.eq(categoryId != null, Dish::getCategoryId, categoryId)
                 .like(StringUtils.isNotBlank(name), Dish::getName, name);
+
+        // 添加隐含条件
         queryWrapper.eq(Dish::getStatus, 1).orderByDesc(Dish::getSort);
-        return dishMapper.selectList(queryWrapper);
+//查询当前分类下（指定名称的）的菜品，不包含口味信息
+        List<Dish> dishes = dishMapper.selectList(queryWrapper);
+
+    /*
+        多个菜品，如果要查出他们的口味信息，有两种做法：
+        1. 每拿到一个菜品，就去查一次；查到的结果封装到该菜品对象
+        2. 汇总所有菜品的id；
+           统一查询所有的口味；后台代码遍历，挨个将对应口味设置到菜品对象中
+
+     */
+
+        // 遍历所有菜品，汇总菜品id
+        ArrayList<Long> dishIds = new ArrayList<>();
+        for (Dish dish : dishes) {
+            dishIds.add(dish.getId());
+        }
+        // 查询所有已选菜品的口味
+        LambdaQueryWrapper<DishFlavor> qw = new LambdaQueryWrapper<>();
+            qw.in(DishFlavor::getDishId,dishIds);
+        List<DishFlavor> dishFlavors = dishFlavorService.list(qw);
+
+        //组装list<dishDto>
+        ArrayList<DishDto> dishDtos = new ArrayList<>();
+        for (Dish dish : dishes) {
+            //创建新的dto对象
+            DishDto dto = new DishDto();
+            //属性复制
+            BeanUtils.copyProperties(dish,dto);
+
+            ArrayList<DishFlavor> dtoFlavors = new ArrayList<>();
+
+            // 从总的口味集合中，获取对应的口味，并设置进dtoFlavors
+
+            for (int i = 0; i < dishFlavors.size(); i++) {
+                DishFlavor dishFlavor = dishFlavors.get(i);
+                if (dishFlavor.getDishId().equals(dish.getId())){
+                    // 添加口味到DtoFlavors
+                    dtoFlavors.add(dishFlavor);
+                    // 删除已经使用的口味对象
+                    dishFlavors.remove(i);
+                    /*避免漏查*/
+                    i--;
+                }
+
+            }
+            //为dto设置口味
+            dto.setFlavors(dtoFlavors);
+            //把dto放进集合
+            dishDtos.add(dto);
+        }
+        // 3. 查询并返回
+        return dishDtos;
     }
+
+
 }
+          //return dishMapper.selectList(queryWrapper);
+
+//    public List<Dish> findByCondtion(Long categoryId, String name) {
+//        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(categoryId != null, Dish::getCategoryId, categoryId)
+//                .like(StringUtils.isNotBlank(name), Dish::getName, name);
+//
+//        queryWrapper.eq(Dish::getStatus, 1).orderByDesc(Dish::getSort);
+//
+//
+//
+//
+//        return dishMapper.selectList(queryWrapper);
+//    }
+
