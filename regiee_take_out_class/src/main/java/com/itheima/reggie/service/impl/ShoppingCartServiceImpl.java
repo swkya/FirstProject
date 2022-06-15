@@ -8,6 +8,7 @@ import com.itheima.reggie.service.ShoppingCartService;
 import com.itheima.reggie.utils.BaseContext;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.logging.Level;
 
 @Service
@@ -51,5 +52,19 @@ public class ShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sho
             return null;
         }
 
+    }
+
+    /*根据用户id查询购物车*/
+    @Override
+    public List<ShoppingCart> listByUserId() {
+        //用户id
+        Long userId = BaseContext.getCurrentId();
+        LambdaQueryWrapper<ShoppingCart> qw = new LambdaQueryWrapper<>();
+        qw.eq(ShoppingCart::getUserId,userId)
+                .orderByDesc(ShoppingCart::getCreateTime);
+        List<ShoppingCart> shoppingCarts = this.list(qw);
+
+
+        return shoppingCarts;
     }
 }

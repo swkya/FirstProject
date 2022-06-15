@@ -43,6 +43,6 @@ public class ShoppingCart implements Serializable {
     // 菜品或套餐的图片
     private String image;
 
-    @TableField(fill = FieldFill.INSERT)
+
     private LocalDateTime createTime;
 }

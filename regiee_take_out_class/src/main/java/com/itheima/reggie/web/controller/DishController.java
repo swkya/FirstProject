@@ -138,7 +138,7 @@ public class DishController {
     /*套餐添加，菜品的添加*/
     @GetMapping("/list")
     public R<List<DishDto>> findDishWithCategoryId(Long categoryId,String name){
-        List<DishDto> dishDtos = dishService.findByCondtion(categoryId,name);
+        List<DishDto> dishDtos = dishService.findByCondtion(categoryId, name);
         return R.success("菜品查询成功",dishDtos);
     }
 
