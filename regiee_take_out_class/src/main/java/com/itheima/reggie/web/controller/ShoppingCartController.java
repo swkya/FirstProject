@@ -1,8 +1,11 @@
 package com.itheima.reggie.web.controller;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.entity.ShoppingCart;
 import com.itheima.reggie.service.ShoppingCartService;
+import com.itheima.reggie.utils.BaseContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,9 +41,24 @@ public class ShoppingCartController {
         //查看购物车
         List<ShoppingCart> shoppingCarts = shoppingCartService.listByUserId();
         if (shoppingCarts.size()==0) {
-            return R.success("空空如也");
+            return R.fail("空空如也");
         }
         return R.success("查询购物车成功！",shoppingCarts);
+    }
+
+    /*清空购物车
+    * 隐含条件为当前用户id*/
+    @DeleteMapping("/clean")
+    public R clean(){
+        //获取当前用户id
+        Long userId = BaseContext.getCurrentId();
+        LambdaQueryWrapper<ShoppingCart> qw = new LambdaQueryWrapper<>();
+        qw.eq(ShoppingCart::getUserId,userId);
+        boolean result = shoppingCartService.remove(qw);
+        if (result) {
+            return R.success("清空购物车",null);
+        }
+       return R.fail("删除失败");
     }
  
  }  
