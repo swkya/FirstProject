@@ -25,6 +25,7 @@ public class ShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sho
         LambdaQueryWrapper<ShoppingCart> qw = new LambdaQueryWrapper<>();
         Long dishId = shoppingCart.getDishId();
         Long setmealId = shoppingCart.getSetmealId();
+        //只能查自己的购物车
         qw.eq(ShoppingCart::getUserId,userId);
         if (dishId!=null) {
             qw.eq(ShoppingCart::getDishId, dishId);
