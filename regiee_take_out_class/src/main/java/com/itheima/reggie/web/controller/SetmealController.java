@@ -3,6 +3,7 @@ package com.itheima.reggie.web.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.entity.Dish;
+import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.entity.SetmealDish;
 import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.entity.dto.SetmealDto;
@@ -109,5 +110,18 @@ public class SetmealController {
         return R.fail("参数有误！");
 
     }
+
+
+    /*前台套餐展示*/
+    @GetMapping("/list")
+     public R<List<Setmeal>> list(Setmeal setmeal){
+        log.info("条件查新套餐,条件为{}",setmeal);
+        //调用service条件查询
+     List<Setmeal> setmeals = setmealService.listByCondtions(setmeal);
+        if (setmeals!=null) {
+           return R.success("查询成功",setmeals);
+        }
+       return R.fail("查询失败");
+     }
 
 }

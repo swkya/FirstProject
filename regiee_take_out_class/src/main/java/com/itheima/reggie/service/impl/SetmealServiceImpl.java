@@ -198,5 +198,28 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
     }
 
+    /*按照条件查询套餐*/
+    @Override
+    public List<Setmeal> listByCondtions(Setmeal setmeal) {
+       //设置各种条件
+        LambdaQueryWrapper<Setmeal> qw = new LambdaQueryWrapper<>();
+        Long categoryId = setmeal.getCategoryId();
+        String desc = setmeal.getDescription();
+        String code = setmeal.getCode();
+        String name = setmeal.getName();
+        Integer status = setmeal.getStatus();
+        /*设置各种条件*/
+        qw.eq(categoryId !=null,Setmeal::getCategoryId, categoryId)
+                .like(StringUtils.isNotBlank(code),Setmeal::getCode,code)
+                .like(StringUtils.isNotBlank(desc),Setmeal::getDescription,desc)
+                .like(StringUtils.isNotBlank(name),Setmeal::getName,name)
+                .eq(status!=null,Setmeal::getStatus,status);
+
+        List<Setmeal> setmeals = this.list(qw);
+
+
+        return setmeals;
+    }
+
 
 }

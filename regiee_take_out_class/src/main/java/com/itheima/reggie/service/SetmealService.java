@@ -7,6 +7,8 @@ import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.entity.dto.SetmealDto;
 
+import java.util.List;
+
 /**
  * @Author swk
  * @Date 2022/6/11 11:31
@@ -32,4 +34,6 @@ public interface SetmealService extends IService<Setmeal> {
 
     /*删除 逻辑删除 更改字段*/
     boolean updateByIds(Long[] ids);
+/*按照条件查询套餐*/
+    List<Setmeal> listByCondtions(Setmeal setmeal);
 }
