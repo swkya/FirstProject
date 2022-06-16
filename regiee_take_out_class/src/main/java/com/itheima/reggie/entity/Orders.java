@@ -42,7 +42,7 @@ public class Orders implements Serializable {
 
 
     //实收金额
-    private BigDecimal amount;
+    private Integer amount;
 
     //备注
     private String remark;
